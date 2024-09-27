@@ -53,46 +53,38 @@ object OpAcceleration : SpellAction {
 			entityFastTicks[target] = supertime
 			entityWaitTicks[target] = 0
 			speed = force
-			tickAccelerate(target, force, supertime)
-
 		}
 	}
 
 	@JvmStatic
 	fun tickAcceleratedEntities() {
-		for ((entity, ticks) in entityFastTicks) {
-			if (!entity.isRemoved) {
-				tickAccelerate(entity, speed, ticks)
+		val it: MutableIterator<MutableMap.MutableEntry<Entity, Int>> = entityFastTicks.iterator()
+		while (it.hasNext()) {
+			val next = it.next()
+			val entity = next.key
+			val ticks = next.value
+
+			if (!entity.isRemoved && ticks > 0) {
+				val wait = entityWaitTicks[entity] ?: 0
+
+				if (wait >= 0) {
+					if (wait == 5)
+					{
+						entity.push(speed.x, speed.y, speed.z)
+						entity.hurtMarked = true
+					}
+					entityWaitTicks[entity] = wait + 1
+				}
+				entityFastTicks[entity] = ticks - 1
+
+				if (wait < 0 || wait > 5) {
+					entityWaitTicks[entity] = 0
+				}
 			} else {
+				it.remove()
 				entityFastTicks.remove(entity)
 				entityWaitTicks.remove(entity)
 			}
 		}
 	}
-
-	@JvmStatic
-	fun tickAccelerate(target: Entity, force: Vec3, ticks: Int) {
-		if (ticks > 0) {
-			val wait = entityWaitTicks[target] ?: 0
-
-			if (wait >= 0) {
-				if (wait == 5)
-				{
-					target.push(force.x, force.y, force.z)
-					target.hurtMarked = true
-				}
-				entityWaitTicks[target] = wait + 1
-			}
-			entityFastTicks[target] = ticks - 1
-
-			if (wait < 0 || wait > 5) {
-				entityWaitTicks[target] = 0
-			}
-		} else {
-			entityFastTicks.remove(target)
-			entityWaitTicks.remove(target)
-		}
-	}
-
-
 }

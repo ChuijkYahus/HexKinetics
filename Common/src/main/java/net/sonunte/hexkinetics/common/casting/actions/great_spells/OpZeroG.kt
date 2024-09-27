@@ -38,19 +38,39 @@ object OpZeroG : SpellAction {
 				ticks = time.toInt() * 20
 				entityTicks[target] = ticks
 				target.isNoGravity = true
-				target.hurtMarked = true //Why!?
-				tickDownNoGravity(target, ticks)
+				target.hurtMarked = true //needed to apply motion I think
 			}
 		}
 	}
 
 	@JvmStatic
 	fun tickZeroGEntities() {
-		for ((entity, ticks) in entityTicks) {
-			if (!entity.isRemoved) {
-				tickDownNoGravity(entity, ticks)
+		val it: MutableIterator<MutableMap.MutableEntry<Entity, Int>> = entityTicks.iterator()
+		while (it.hasNext()) {
+			val next = it.next()
+			val entity = next.key
+			val ticks = next.value
+
+			if (!entity.isRemoved && ticks > 0) {
+				if(entity is Player && entity.isFallFlying)
+				{
+					entity.resetFallDistance()
+					entityTicks[entity] = ticks - 1
+				}else
+				{
+					entity.resetFallDistance()
+					entity.push(
+						entity.deltaMovement.x * 0.1,
+						entity.deltaMovement.y * 0.01,
+						entity.deltaMovement.z * 0.1
+					)
+					entity.hurtMarked = true
+					entityTicks[entity] = ticks - 1
+				}
 			} else {
+				it.remove()
 				entityTicks.remove(entity)
+				entity.isNoGravity = false
 			}
 		}
 	}
@@ -58,32 +78,7 @@ object OpZeroG : SpellAction {
 	@JvmStatic
 	fun unloadZeroGEntity(entity: Entity) {
 		if (entityTicks.remove(entity) != null) {
-			entity.isNoGravity = false;
+			entity.isNoGravity = false
 		}
 	}
-
-	@JvmStatic
-	fun tickDownNoGravity(target: Entity, ticks: Int) {
-		if (ticks > 0) {
-			if(target is Player && target.isFallFlying)
-			{
-				target.resetFallDistance()
-				entityTicks[target] = ticks - 1
-			}else
-			{
-				target.resetFallDistance()
-				target.push(
-					target.deltaMovement.x * 0.1,
-					target.deltaMovement.y * 0.01,
-					target.deltaMovement.z * 0.1
-				)
-				target.hurtMarked = true
-				entityTicks[target] = ticks - 1
-			}
-		} else {
-			entityTicks.remove(target)
-			target.isNoGravity = false
-		}
-	}
-
 }
