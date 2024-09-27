@@ -28,10 +28,15 @@ public class ForgeHexKineticsConfig implements HexKineticsConfig.CommonConfigAcc
         private static ForgeConfigSpec.DoubleValue exampleConstActionCost;
 
         public Server(ForgeConfigSpec.Builder builder) {
+            builder.translation("text.autoconfig.hexkinetics.option.server.translocation").push("translocation");
 
-            translocationDenyList = builder.comment("Resource locations of blocks you can't translocate.")
-                    .defineList("translocationDenyList", HexKineticsConfig.ServerConfigAccess.Companion.getDEFAULT_TRANSLOCATION_DENY_LIST(), ForgeHexKineticsConfig.Server::isValidReslocArg);
+            translocationDenyList = builder
+                    .translation("text.autoconfig.hexkinetics.option.server.translocation.translocationDenyList")
+                    .defineList("translocationDenyList",
+                            HexKineticsConfig.ServerConfigAccess.Companion.getDEFAULT_TRANSLOCATION_DENY_LIST(),
+                            ForgeHexKineticsConfig.Server::isValidReslocArg);
 
+            builder.pop();
         }
 
 

@@ -53,6 +53,7 @@ public class ForgeHexKineticsInitializer {
 		modBus.register(ForgeHexKineticsClientInitializer.class);
 		
 		modBus.addListener((FMLCommonSetupEvent evt) -> evt.enqueueWork(Patterns::registerPatterns));
+		evBus.register(EventsHandler.class);
 	}
 	
 	// https://github.com/VazkiiMods/Botania/blob/1.18.x/Forge/src/main/java/vazkii/botania/forge/ForgeCommonInitializer.java
